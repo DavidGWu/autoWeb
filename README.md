@@ -1,4 +1,4 @@
-# autoWeb
+# autoWeb - Automated Web manipulation using Google Puppeteer
 
 ## Features
 
@@ -7,6 +7,8 @@
 2. Both synchronous and asynchronous calls are supported
 
 3. Support web request, can be a service listening to socket request
+
+4. Currently support Google login, Scan Gmails, Crawl Google Bussiness information
 
   ​
 
