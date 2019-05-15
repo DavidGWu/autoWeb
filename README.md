@@ -27,6 +27,5 @@ node test.js
 
 ## Examples
 
-See the `dsbridgedemo/` package. run the `app` project and to see it in action.
+See the "test.js", Add calling function to test.
 
-To use a dsBridge in your own project:
