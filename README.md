@@ -27,7 +27,7 @@
 ## Installation
 
 ```shell
-pod "dsBridge"
+npm install Puppeteer
 ```
 
 
