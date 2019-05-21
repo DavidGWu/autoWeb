@@ -11,7 +11,12 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "memory-card": "^0.6.13",
     "nodemailer": "^6.1.1",
-    "puppeteer": "^1.15.0"
+    "puppeteer": "^1.15.0",
+    "qrcode-terminal": "^0.12.0",
+    "tuling123-client": "0.0.3",
+    "wechaty": "^0.22.6",
+    "wechaty-puppet": "^0.14.1"
   }
 }
