@@ -19,8 +19,8 @@
  */
 //Install with package.json using npm
 const qrTerm = require('qrcode-terminal')
-const Tuling123 = require('tuling123-client')
 
+const Tuling123 = require('tuling123-client')
 const TULING123_API_KEY = 'd346c0902e254de0822eed15c0fc3c49'
 const tuling = new Tuling123(TULING123_API_KEY)
 
@@ -32,7 +32,7 @@ const {
     log,
 } = require('wechaty')
 
-async function attachBotRoom(room) {
+async function sayTulin(room) {
     try {
         const { text: reply } = await tuling.ask("hello")
         console.log('Tuling123', 'Talker reply:"%s" for "%s" ',
@@ -105,12 +105,7 @@ bot
         log.info('Bot', msg)
         await this.say(msg)
         const filehelper = bot.Contact.load('filehelper')
-        filehelper.say('DavidAI: ', msg)
-        getContacts()
-
-
-        //await tina.say("Hello")
-
+        filehelper.say('DavidAI: Logged In' + msg)
 
     })
 
@@ -128,7 +123,7 @@ async function saveAvatar(contact) {
 
     log.info('Bot', 'Contact: "%s" with avatar file: "%s"',
         contact.name(),
-        name,
+        name, x
     )
 }
 
@@ -177,11 +172,12 @@ async function getContacts() {
 let busyIndicator = false
 let busyRoomIndicator = false
 let busyAnnouncement = `Automatic Reply: I cannot read your message because I'm busy now, will talk to you when I get back.`
-var roomToLive
+let targetList = []
+
+
 
 bot.on('message', async function (msg) {
     log.info('Bot', '(message) %s', msg)
-
 
     const filehelper = bot.Contact.load('filehelper')
 
@@ -196,135 +192,192 @@ bot.on('message', async function (msg) {
     // }
     if (msg.room)
         if (!sender || !receiver) {
-            //return
+            return
         }
 
-    // if (receiver.id === 'filehelper') {
-    //     if (text.substring(0, 1) === '/') {
-    //         var cmd = text.split(" ")
-    //         if (cmd[0] === "/contact") {
-    //             getContacts()
-    //             contactArray.forEach(function (element) {
-    //                 console.log(element);
-    //                 filehelper.say(element.index, ' ', element.name, ' ', element.alias, ' ', element.gender)
-    //             });
-    //         }
+    if (receiver.id === 'filehelper') {
+        if (text.substring(0, 1) === '/') {
+            let cmd = text.split(" ")
 
 
-    //         if (cmd[0] === "/find") {
-    //             console.log(cmd[1])
-    //             contactSel = await bot.Contact.find({ name: new RegExp(cmd[1]) })
-    //             if (contactSel) {
-    //                 var info = "Found: " + contactSel.name
-    //                 filehelper.say(info)
-    //                 contactSel.say("Hi")
-    //             }
-    //             else {
-    //                 filehelper.say("Not Found")
-    //             }
+            if (cmd[0] === "/contact") {
+                getContacts()
+                contactArray.forEach(function (element) {
+                    console.log(element);
+                    filehelper.say(element.index, ' ', element.name, ' ', element.alias, ' ', element.gender)
+                });
+            }
 
-    //         }
+            // Contact.findAll()
+            if (cmd[0] === "/contactlist") {
+                const contactList = await bot.Contact.findAll()
+                console.log('bot.Contact.findAll() done.')
 
-    //         if (cmd[0] === "/findroom") {
-    //             const searchRegex = new RegExp(cmd[1])
-    //             const room = await bot.Room.find({ topic: searchRegex })
-    //             console.log(searchRegex)
+                const totalNum = contactList.length
+                let n = 0
 
-    //             if (!room) {
-    //                 console.log('not found')
-    //                 return
-    //             } else {
-    //                 console.log(await room.topic(), 'found')
-    //                 botroom = room
+                const replyText = [
+                    `Total contact number: ${totalNum}`,
+                    contactList
+                        .slice(0, 17)
+                        .map(contact => contact.name())
+                        .map(name => ++n + '. ' + name),
+                ].join('\n')
 
-    //             }
+                await filehelper.say(replyText)
 
-    //         }
-
-    //         if (cmd[0] === "/ai") {
-    //             if (botisOn) {
-    //                 botisOn = false
-    //                 console.log('tulin off')
-    //             }
-    //             else {
-    //                 botisOn = true
-    //                 console.log('tulin on')
-    //             }
-    //         }
-
-    //         if (cmd[0] === "/spam" && contactSel != null) {
-    //             for (let i = 0; i < parseInt(cmd[2]); i++) {
-    //                 await contactSel.say(cmd[1])
-    //             }
-    //             contactSel.say(cmd[1])
-    //         }
-
-    //     }
-
-       
-
-    //     if (busyIndicator && text.substring(0, 1) === '@') {
-
-    //         const searchRegex = new RegExp(text.substring(1, text.length))
-    //         const room = await bot.Room.find({ topic: searchRegex })
-    //         console.log(searchRegex)
-
-    //         if (!room) {
-    //             console.log('not found')
-    //             return
-    //         } else {
-    //             console.log(await room.topic(), 'found')
-    //             roomToLive = room
-    //             busyRoomIndicator = true
-    //         }
-
-    //     }
+                return
+            }
 
 
-    //     if (text === '#status') {
-    //         await filehelper.say('in busy mode: ' + busyIndicator)
-    //         await filehelper.say('auto reply: ' + busyAnnouncement)
+            if (cmd[0] === "/find") {
+                console.log(cmd[1])
+                contactSel = await bot.Contact.find({ name: new RegExp(cmd[1]) })
+                if (contactSel) {
+                    var info = "Found: " + contactSel.name
+                    filehelper.say(info)
+                    contactSel.say("Hi")
+                }
+                else {
+                    filehelper.say("Not Found")
+                }
 
-    //     } else if (text === '#free') {
-    //         busyIndicator = false
-    //         busyRoomIndicator = false
-    //         await filehelper.say('auto reply stopped.')
+            }
 
-    //     } else if (/^#busy/i.test(text)) {
+            if (cmd[0] === "/findroom") {
+                const searchRegex = new RegExp(cmd[1])
+                const room = await bot.Room.find({ topic: searchRegex })
+                console.log(searchRegex)
 
-    //         busyIndicator = true
-    //         await filehelper.say('in busy mode: ' + 'ON')
+                if (!room) {
+                    console.log('not found')
+                    return
+                } else {
+                    console.log(await room.topic(), 'found')
+                    botroom = room
 
-    //         const matches = text.match(/^#busy (.+)$/i)
-    //         if (!matches || !matches[1]) {
-    //             await filehelper.say('auto reply message: "' + busyAnnouncement + '"')
+                }
 
-    //         } else {
-    //             busyAnnouncement = matches[1]
-    //             await filehelper.say('set auto reply to: "' + busyAnnouncement + '"')
+            }
 
-    //         }
-    //     }
+            if (cmd[0] === "/ai") {
+                if (botisOn) {
+                    botisOn = false
+                    targetList = []
+                    console.log('tulin off')
+                    filehelper.say("AI OFF")
+                }
+                else {
+                    botisOn = true
+                    console.log('tulin on')
+                    filehelper.say("AI ON")
+                }
+            }
 
-    //     return
-    // }
+            if (cmd[0] === "/addlist") {
+                const searchContact = await bot.Contact.find({ name: new RegExp(cmd[1]) })
+                const searchRoom = await bot.Room.find({ topic: new RegExp(cmd[1]) })
+                if (searchContact) {
+                    filehelper.say("Found Contact: " + searchContact.name())
+                    targetList.push({
+                        content: searchContact,
+                        type: 0
+                    })
+
+                }
+                if (searchRoom) {
+                    filehelper.say("Found Room: " + await searchRoom.topic())
+                    targetList.push({
+                        content: searchRoom,
+                        type: 1
+                    })
+                }
+
+            }
+
+            if (cmd[0] === "/spam" && contactSel != null) {
+                for (let i = 0; i < parseInt(cmd[2]); i++) {
+                    await contactSel.say(cmd[1])
+                }
+                contactSel.say(cmd[1])
+            }
+
+        }
 
 
-    if (true) {
+        if (text === '#status') {
+            await filehelper.say('in busy mode: ' + busyIndicator)
+            await filehelper.say('auto reply: ' + busyAnnouncement)
+
+        } else if (text === '#free') {
+            busyIndicator = false
+            busyRoomIndicator = false
+            await filehelper.say('auto reply stopped.')
+
+        } else if (/^#busy/i.test(text)) {
+
+            busyIndicator = true
+            await filehelper.say('in busy mode: ' + 'ON')
+
+            const matches = text.match(/^#busy (.+)$/i)
+            if (!matches || !matches[1]) {
+                await filehelper.say('auto reply message: "' + busyAnnouncement + '"')
+
+            } else {
+                busyAnnouncement = matches[1]
+                await filehelper.say('set auto reply to: "' + busyAnnouncement + '"')
+
+            }
+        }
+
+        return
+    }
+
+
+    if (botisOn) {
+        let trageted = -1;
         //if (msg.self() || msg.room() || msg.from().name() === '微信团队' || msg.type() !== Message.Type.Text) return
+        if (msg.self() || msg.from().name() === '微信团队' || msg.type() !== bot.Message.Type.Text) return
 
-        console.log('Bot', 'talk: %s', msg.text())
+        targetList.forEach(async function (e) {
+            // console.log(e);
 
-        try {
-            //const { text: reply } = await tuling.ask(text, { userid: msg.from() })
-            const { text: reply } = await tuling.ask(text)
-            console.log('Tuling123', 'Talker reply:"%s" for "%s" ',
-                reply,
-                msg.text(),
-            )
-            await room.say(reply)
-        } catch (e) {
-            console.error('Bot', 'on message tuling.ask() exception: %s', e && e.message || e)
+            if (msg.room()) {
+                if (e.type == 1 && msg.room() == e.content) {
+                    console.log("Found Room in targetlist");
+                    trageted = 1
+                }
+            }
+            else if (e.type == 0 && msg.from() == e.content) {
+                console.log("Found Contact in targetlist");
+                trageted = 0
+            }
+
+
+        });
+
+        if (trageted != -1) {
+            console.log('Someone', 'talk: %s', msg.text())
+            try {
+                //const { text: reply } = await tuling.ask(text, { userid: msg.from() })
+                let { text: reply } = await tuling.ask(msg.text())
+
+                console.log('Tuling123', 'Talker reply:"%s" for "%s" ',
+                    reply,
+                    msg.text(),
+                )
+                if (trageted == 0) {
+                    reply = msg.from().name() + ", " + reply
+                } else if (trageted == 1) {
+                    reply = msg.room().topic() + "," + reply
+                }
+
+
+                await msg.say(reply)
+            } catch (e) {
+                console.error('Bot', 'on message tuling.ask() exception: %s', e && e.message || e)
+            }
+
         }
     }
 
@@ -337,7 +390,7 @@ bot.on('message', async function (msg) {
     }
 
     if (msg.self()) {
-        //return
+        return
     }
 
     // /**
