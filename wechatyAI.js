@@ -195,9 +195,27 @@ bot.on('message', async function (msg) {
             return
         }
 
+    let cmd = text.split(" ")
+
+    if (text.substring(0, 1) === '/') {
+        if (cmd[0] === "/ai") {
+            if (botisOn) {
+                botisOn = false
+                targetList = []
+                console.log('tulin off')
+                msg.say("AI OFF")
+            }
+            else {
+                botisOn = true
+                console.log('tulin on')
+                msg.say("AI ON")
+            }
+        }
+    }
+
     if (receiver.id === 'filehelper') {
         if (text.substring(0, 1) === '/') {
-            let cmd = text.split(" ")
+
 
 
             if (cmd[0] === "/contact") {
@@ -219,7 +237,7 @@ bot.on('message', async function (msg) {
                 const replyText = [
                     `Total contact number: ${totalNum}`,
                     contactList
-                        .slice(0, 17)
+                        .slice(0, 500) //max 500 entries
                         .map(contact => contact.name())
                         .map(name => ++n + '. ' + name),
                 ].join('\n')
@@ -260,19 +278,7 @@ bot.on('message', async function (msg) {
 
             }
 
-            if (cmd[0] === "/ai") {
-                if (botisOn) {
-                    botisOn = false
-                    targetList = []
-                    console.log('tulin off')
-                    filehelper.say("AI OFF")
-                }
-                else {
-                    botisOn = true
-                    console.log('tulin on')
-                    filehelper.say("AI ON")
-                }
-            }
+
 
             if (cmd[0] === "/addlist") {
                 const searchContact = await bot.Contact.find({ name: new RegExp(cmd[1]) })
@@ -367,9 +373,9 @@ bot.on('message', async function (msg) {
                     msg.text(),
                 )
                 if (trageted == 0) {
-                    reply = msg.from().name() + ", " + reply
+                    //reply = msg.from().name() + ", " + reply
                 } else if (trageted == 1) {
-                    reply = msg.room().topic() + "," + reply
+                    //reply = msg.room().topic() + "," + reply
                 }
 
 
